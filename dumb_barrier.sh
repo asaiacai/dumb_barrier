@@ -9,7 +9,6 @@ echo "[gatekeeper] rank=$RANK world=$WORLD_SIZE master=$MASTER_ADDR:$MASTER_PORT
 
 # --- Server logic ---
 server () {
-  set -x
   echo "[server] Starting barrier server"
 
   mkfifo $BARRIER_FIFO
@@ -36,7 +35,6 @@ server () {
 
 # --- Client logic ---
 client () {
-  set -x
   echo "[client] waiting for setup to finish"
 
   while [ ! -f "${SETUP_FILE}" ]; do
