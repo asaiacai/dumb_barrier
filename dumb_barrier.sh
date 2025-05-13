@@ -25,11 +25,9 @@ server () {
   echo "[server] All peers arrived"
 
   # Broadcast GO to all peers
-  i=1
-  while [ "$i" -lt "$WORLD_SIZE" ]; do
-    echo "GO" | socat - TCP:$MASTER_ADDR:$MASTER_PORT
-    i=$((i + 1))
-  done
+  echo "[server] opening GO listener on $GO_PORT"
+  # any client that now connects reads “GO” then the socket closes
+  ( printf 'GO\n' | socat -u - TCP-LISTEN:${GO_PORT},reuseaddr,fork ) &
 
   touch "$READY_FILE"
   trap : TERM INT; sleep infinity & wait
@@ -47,15 +45,10 @@ client () {
   echo "[client] Sending rank to server"
   echo "$RANK" | socat - TCP:$MASTER_ADDR:$MASTER_PORT
 
-  # Wait for GO signal
-  while true; do
-    if socat - TCP:$MASTER_ADDR:$MASTER_PORT | grep -q "^GO$"; then
-      echo "[client] Got GO"
-      touch "$READY_FILE"
-      return
-    fi
-    sleep 1
-  done
+  # blocks until server starts the GO listener
+  socat -u TCP:${MASTER_ADDR}:${GO_PORT} - | grep -q '^GO$'
+  echo "[client] received GO"
+  
   trap : TERM INT; sleep infinity & wait
 }
 
