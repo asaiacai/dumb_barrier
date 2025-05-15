@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -u
 
 SETUP_FILE=${SYNC_FILE:-/tmp/konduktor/SETUP}
 READY_FILE=${READY_FILE:-/tmp/konduktor/READY}
