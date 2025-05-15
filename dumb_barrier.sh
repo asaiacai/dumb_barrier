@@ -45,10 +45,10 @@ client () {
   while true; do
     #––– ping the master with our rank –––#
     echo "[client] Sending rank to server"
-    echo "$RANK" | socat - TCP:$MASTER_ADDR:$MASTER_PORT,connect-timeout=2
+    echo "$RANK" | socat - TCP:${MASTER_ADDR}.${POD_NAMESPACE}.svc.cluster.local:$MASTER_PORT,connect-timeout=2
   
     #––– immediately check whether GO is ready –––#
-    if socat -u TCP:${MASTER_ADDR}:${GO_PORT},connect-timeout=2 - | grep -q '^GO$'; then
+    if socat -u TCP:${MASTER_ADDR}.${POD_NAMESPACE}.svc.cluster.local:${GO_PORT},connect-timeout=2 - | grep -q '^GO$'; then
       echo "[client] received GO"
       break
     fi
